@@ -1,1 +1,106 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>20’s | Elegance Never Fades</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f7f3eb;color:#382719;font-family:Arial,sans-serif}
+header{padding:20px 6%;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ddd2c2}
+.logo{font-size:28px;font-weight:bold;letter-spacing:3px}
+nav a{color:#382719;text-decoration:none;margin-left:15px;font-size:12px}
+.hero{padding:85px 7%;background:#e9dfcf;text-align:center}
+.hero small,.sub{letter-spacing:3px}
+.hero h1{font-family:Georgia,serif;font-size:48px;margin:22px 0}
+.hero p{letter-spacing:2px;font-size:12px}
+.btn{display:inline-block;background:#382719;color:white;padding:14px 25px;text-decoration:none;margin-top:18px;font-size:12px;letter-spacing:2px}
+section{padding:50px 6%}
+.heading{text-align:center;font-family:Georgia,serif;font-size:30px}
+.sub{text-align:center;color:#8b7764;font-size:12px}
+.collections{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:30px}
+.collection{background:#dfd1bd;padding:35px 10px;text-align:center}
+.collection h2{font-family:Georgia,serif;font-size:20px}
+.categories{text-align:center;margin:25px 0}
+.categories button{background:transparent;border:1px solid #8b7764;padding:10px;margin:4px;color:#382719}
+.products{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.product{background:#eee7dc;padding:12px}
+.photo{height:170px;background:#dfd5c7;display:flex;align-items:center;justify-content:center;color:#8b7764;font-size:12px}
+.product h3{font-size:15px}
+.product button{width:100%;padding:12px;background:#382719;color:white;border:0}
+footer{background:#382719;color:#f7f3eb;text-align:center;padding:35px}
+@media(min-width:700px){.products{grid-template-columns:repeat(4,1fr)}.hero h1{font-size:65px}}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">20’s</div>
+<nav><a href="#home">HOME</a><a href="#shop">SHOP</a><a href="#about">ABOUT</a></nav>
+</header>
+
+<div class="hero" id="home">
+<small>WELCOME TO 20’S</small>
+<h1>Elegance Never Fades.</h1>
+<p>TIMELESS STYLE. EVERYDAY CONFIDENCE.</p>
+<a class="btn" href="#shop">EXPLORE COLLECTION</a>
+</div>
+
+<section>
+<h2 class="heading">OUR COLLECTIONS</h2>
+<p class="sub">MADE FOR YOUR ERA</p>
+<div class="collections">
+<div class="collection"><h2>THE SIGNATURE</h2><p>Premium Collection</p><a class="btn" href="#shop">EXPLORE</a></div>
+<div class="collection"><h2>THE ESSENTIALS</h2><p>Everyday Collection</p><a class="btn" href="#shop">EXPLORE</a></div>
+</div>
+</section>
+
+<section id="shop">
+<h2 class="heading">THE COLLECTION</h2>
+<p class="sub">FIND YOUR SIGNATURE STYLE</p>
+<div class="categories">
+<button onclick="filter('All')">All</button>
+<button onclick="filter('Shirts')">Shirts</button>
+<button onclick="filter('T-Shirts')">T-Shirts</button>
+<button onclick="filter('Trousers')">Trousers</button>
+<button onclick="filter('Pants')">Pants</button>
+</div>
+<div class="products" id="products"></div>
+</section>
+
+<section id="about">
+<h2 class="heading">ABOUT 20’S</h2>
+<p class="sub">ELEGANCE NEVER FADES.</p>
+<p style="text-align:center;line-height:1.8">Style is more than what you wear. It is how you define your era. Welcome to 20’s.</p>
+</section>
+
+<footer>
+<h2>20’s</h2>
+<p>ELEGANCE NEVER FADES.</p>
+<p>Bangladesh</p>
+<p>© 2026 20’s. All Rights Reserved.</p>
+</footer>
+
+<script>
+const items=[
+{name:"Premium Shirt",category:"Shirts",price:650},
+{name:"Classic Shirt",category:"Shirts",price:550},
+{name:"Drop Shoulder Tee",category:"T-Shirts",price:450},
+{name:"Essential T-Shirt",category:"T-Shirts",price:350},
+{name:"Classic Trousers",category:"Trousers",price:750},
+{name:"Everyday Pants",category:"Pants",price:650}
+];
+function show(list){
+document.getElementById("products").innerHTML=list.map(p=>`
+<div class="product">
+<div class="photo">20’s PRODUCT PHOTO</div>
+<h3>${p.name}</h3><p>৳ ${p.price}</p>
+<button onclick="alert('Contact 20’s to order this product.')">ORDER NOW</button>
+</div>`).join("");
+}
+function filter(c){show(c==="All"?items:items.filter(p=>p.category===c))}
+show(items);
+</script>
+</body>
+</html>
+
