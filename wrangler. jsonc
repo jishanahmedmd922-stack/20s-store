@@ -1,0 +1,12 @@
+
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "20s-store",
+  "compatibility_date": "2026-11-19",
+  "assets": {
+    "directory": "./"
+  },
+  "observability": {
+    "enabled": true
+  }
+}
