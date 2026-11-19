@@ -8,20 +8,21 @@
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#f7f3eb;color:#382719;font-family:Arial,sans-serif}
-header{padding:20px 6%;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ddd2c2}
-.logo{font-size:28px;font-weight:bold;letter-spacing:3px}
-nav a{color:#382719;text-decoration:none;margin-left:15px;font-size:12px}
+header{padding:18px 6%;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ddd2c2;position:sticky;top:0;background:#f7f3eb;z-index:5}
+.logo{font-size:27px;font-weight:bold;letter-spacing:3px}
+nav a{color:#382719;text-decoration:none;margin-left:12px;font-size:11px}
+.cart-btn{background:#382719;color:white;border:0;padding:11px 13px;font-size:12px}
 .hero{padding:85px 7%;background:#e9dfcf;text-align:center}
 .hero small,.sub{letter-spacing:3px}
-.hero h1{font-family:Georgia,serif;font-size:48px;margin:22px 0}
+.hero h1{font-family:Georgia,serif;font-size:45px;margin:22px 0}
 .hero p{letter-spacing:2px;font-size:12px}
 .btn{display:inline-block;background:#382719;color:white;padding:14px 25px;text-decoration:none;margin-top:18px;font-size:12px;letter-spacing:2px}
 section{padding:50px 6%}
 .heading{text-align:center;font-family:Georgia,serif;font-size:30px}
 .sub{text-align:center;color:#8b7764;font-size:12px}
 .collections{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:30px}
-.collection{background:#dfd1bd;padding:35px 10px;text-align:center}
-.collection h2{font-family:Georgia,serif;font-size:20px}
+.collection{background:#dfd1bd;padding:30px 10px;text-align:center}
+.collection h2{font-family:Georgia,serif;font-size:18px}
 .categories{text-align:center;margin:25px 0}
 .categories button{background:transparent;border:1px solid #8b7764;padding:10px;margin:4px;color:#382719}
 .products{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
@@ -30,13 +31,35 @@ section{padding:50px 6%}
 .product h3{font-size:15px}
 .product button{width:100%;padding:12px;background:#382719;color:white;border:0}
 footer{background:#382719;color:#f7f3eb;text-align:center;padding:35px}
-@media(min-width:700px){.products{grid-template-columns:repeat(4,1fr)}.hero h1{font-size:65px}}
+#cartPanel{display:none;position:fixed;inset:0;background:#0008;z-index:10;justify-content:flex-end}
+.cart-content{background:#f7f3eb;width:100%;max-width:420px;height:100%;padding:22px;overflow:auto}
+.cart-top{display:flex;justify-content:space-between;align-items:center}
+.cart-top button{background:none;border:0;font-size:25px;color:#382719}
+.cart-item{border-bottom:1px solid #ddd2c2;padding:15px 0}
+.cart-item h3{margin:0 0 8px;font-size:15px}
+.qty{display:flex;align-items:center;gap:12px;margin-top:10px}
+.qty button{background:#382719;color:white;border:0;padding:7px 12px}
+.remove{background:none!important;color:#8b3d2b!important;text-decoration:underline;padding-left:0!important}
+.total{border-top:1px solid #c9bba9;margin-top:20px;padding-top:15px;font-size:18px;font-weight:bold}
+.checkout{width:100%;padding:15px;background:#382719;color:white;border:0;margin-top:18px}
+.note{font-size:12px;line-height:1.7;color:#806c58}
+.empty{text-align:center;padding:50px 10px;color:#806c58}
+@media(min-width:700px){
+.products{grid-template-columns:repeat(4,1fr)}
+.hero h1{font-size:65px}
+}
 </style>
 </head>
 <body>
+
 <header>
 <div class="logo">20’s</div>
-<nav><a href="#home">HOME</a><a href="#shop">SHOP</a><a href="#about">ABOUT</a></nav>
+<nav>
+<a href="#home">HOME</a>
+<a href="#shop">SHOP</a>
+<a href="#about">ABOUT</a>
+</nav>
+<button class="cart-btn" onclick="openCart()">BAG (<span id="cartCount">0</span>)</button>
 </header>
 
 <div class="hero" id="home">
@@ -50,8 +73,16 @@ footer{background:#382719;color:#f7f3eb;text-align:center;padding:35px}
 <h2 class="heading">OUR COLLECTIONS</h2>
 <p class="sub">MADE FOR YOUR ERA</p>
 <div class="collections">
-<div class="collection"><h2>THE SIGNATURE</h2><p>Premium Collection</p><a class="btn" href="#shop">EXPLORE</a></div>
-<div class="collection"><h2>THE ESSENTIALS</h2><p>Everyday Collection</p><a class="btn" href="#shop">EXPLORE</a></div>
+<div class="collection">
+<h2>THE SIGNATURE</h2>
+<p>Premium Collection</p>
+<a class="btn" href="#shop">EXPLORE</a>
+</div>
+<div class="collection">
+<h2>THE ESSENTIALS</h2>
+<p>Everyday Collection</p>
+<a class="btn" href="#shop">EXPLORE</a>
+</div>
 </div>
 </section>
 
@@ -59,11 +90,11 @@ footer{background:#382719;color:#f7f3eb;text-align:center;padding:35px}
 <h2 class="heading">THE COLLECTION</h2>
 <p class="sub">FIND YOUR SIGNATURE STYLE</p>
 <div class="categories">
-<button onclick="filter('All')">All</button>
-<button onclick="filter('Shirts')">Shirts</button>
-<button onclick="filter('T-Shirts')">T-Shirts</button>
-<button onclick="filter('Trousers')">Trousers</button>
-<button onclick="filter('Pants')">Pants</button>
+<button onclick="filterProducts('All')">All</button>
+<button onclick="filterProducts('Shirts')">Shirts</button>
+<button onclick="filterProducts('T-Shirts')">T-Shirts</button>
+<button onclick="filterProducts('Trousers')">Trousers</button>
+<button onclick="filterProducts('Pants')">Pants</button>
 </div>
 <div class="products" id="products"></div>
 </section>
@@ -81,26 +112,126 @@ footer{background:#382719;color:#f7f3eb;text-align:center;padding:35px}
 <p>© 2026 20’s. All Rights Reserved.</p>
 </footer>
 
+<div id="cartPanel" onclick="closeCartOutside(event)">
+<div class="cart-content">
+<div class="cart-top">
+<h2>YOUR BAG</h2>
+<button onclick="closeCart()">×</button>
+</div>
+<div id="cartItems"></div>
+<div class="total">Subtotal: ৳ <span id="subtotal">0</span></div>
+<p class="note">Delivery charge will be calculated separately according to parcel weight. Product images and checkout/order submission will be connected in a later update.</p>
+<button class="checkout" onclick="checkoutNotice()">CONTINUE TO CHECKOUT</button>
+</div>
+</div>
+
 <script>
 const items=[
-{name:"Premium Shirt",category:"Shirts",price:650},
-{name:"Classic Shirt",category:"Shirts",price:550},
-{name:"Drop Shoulder Tee",category:"T-Shirts",price:450},
-{name:"Essential T-Shirt",category:"T-Shirts",price:350},
-{name:"Classic Trousers",category:"Trousers",price:750},
-{name:"Everyday Pants",category:"Pants",price:650}
+{id:1,name:"Premium Shirt",category:"Shirts",price:650},
+{id:2,name:"Classic Shirt",category:"Shirts",price:550},
+{id:3,name:"Drop Shoulder Tee",category:"T-Shirts",price:450},
+{id:4,name:"Essential T-Shirt",category:"T-Shirts",price:350},
+{id:5,name:"Classic Trousers",category:"Trousers",price:750},
+{id:6,name:"Everyday Pants",category:"Pants",price:650}
 ];
-function show(list){
+
+let cart=[];
+try{
+cart=JSON.parse(localStorage.getItem("20s-cart"))||[];
+}catch(e){cart=[];}
+
+function showProducts(list){
 document.getElementById("products").innerHTML=list.map(p=>`
 <div class="product">
 <div class="photo">20’s PRODUCT PHOTO</div>
-<h3>${p.name}</h3><p>৳ ${p.price}</p>
-<button onclick="alert('Contact 20’s to order this product.')">ORDER NOW</button>
-</div>`).join("");
+<h3>${p.name}</h3>
+<p>৳ ${p.price}</p>
+<button onclick="addToCart(${p.id})">ADD TO BAG</button>
+</div>
+`).join("");
 }
-function filter(c){show(c==="All"?items:items.filter(p=>p.category===c))}
-show(items);
+
+function filterProducts(category){
+showProducts(category==="All"?items:items.filter(p=>p.category===category));
+}
+
+function saveCart(){
+localStorage.setItem("20s-cart",JSON.stringify(cart));
+updateCart();
+}
+
+function addToCart(id){
+const product=items.find(p=>p.id===id);
+const found=cart.find(p=>p.id===id);
+if(found){found.qty++;}
+else{cart.push({...product,qty:1});}
+saveCart();
+alert(product.name+" added to your bag.");
+}
+
+function updateCart(){
+const count=cart.reduce((sum,p)=>sum+p.qty,0);
+const total=cart.reduce((sum,p)=>sum+p.price*p.qty,0);
+document.getElementById("cartCount").textContent=count;
+document.getElementById("subtotal").textContent=total;
+
+const container=document.getElementById("cartItems");
+
+if(cart.length===0){
+container.innerHTML='<div class="empty">Your bag is currently empty.</div>';
+return;
+}
+
+container.innerHTML=cart.map(p=>`
+<div class="cart-item">
+<h3>${p.name}</h3>
+<div>৳ ${p.price} × ${p.qty}</div>
+<div class="qty">
+<button onclick="changeQty(${p.id},-1)">−</button>
+<span>${p.qty}</span>
+<button onclick="changeQty(${p.id},1)">+</button>
+<button class="remove" onclick="removeItem(${p.id})">Remove</button>
+</div>
+</div>
+`).join("");
+}
+
+function changeQty(id,change){
+const product=cart.find(p=>p.id===id);
+if(!product)return;
+product.qty+=change;
+if(product.qty<=0){
+cart=cart.filter(p=>p.id!==id);
+}
+saveCart();
+}
+
+function removeItem(id){
+cart=cart.filter(p=>p.id!==id);
+saveCart();
+}
+
+function openCart(){
+document.getElementById("cartPanel").style.display="flex";
+updateCart();
+}
+
+function closeCart(){
+document.getElementById("cartPanel").style.display="none";
+}
+
+function closeCartOutside(event){
+if(event.target.id==="cartPanel")closeCart();
+}
+
+function checkoutNotice(){
+alert("Online checkout is not connected yet. Your bag is saved. Please contact 20’s to place an order.");
+}
+
+showProducts(items);
+updateCart();
 </script>
 </body>
 </html>
+
 
