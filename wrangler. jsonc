@@ -1,0 +1,19 @@
+আমরা আমার 20’s Clothing Brand-এর E-commerce Website তৈরি করছি।
+
+GitHub Repository: https://github.com/jishanahmedmd922-stack/20s-store
+
+আগের Worker URL: https://20s-store.jishanahmedmd922.workers.dev/
+
+Cloudflare-এ GitHub দিয়ে নতুন Deployment শুরু করেছি। Repository-এর মধ্যে wrangler.jsonc নামে নতুন ফাইল তৈরি করেছি এবং এই কোড দিয়েছি:
+
+{
+“$schema”: “node_modules/wrangler/config-schema.json”,
+“name”: “20s-store”,
+“compatibility_date”: “2026-11-19”,
+“assets”: {
+“directory”: “./”
+},
+“observability”: {
+“enabled”: true
+}
+}
