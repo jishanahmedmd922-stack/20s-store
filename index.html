@@ -42,6 +42,24 @@ footer{background:#382719;color:#f7f3eb;text-align:center;padding:35px}
 .remove{background:none!important;color:#8b3d2b!important;text-decoration:underline;padding-left:0!important}
 .total{border-top:1px solid #c9bba9;margin-top:20px;padding-top:15px;font-size:18px;font-weight:bold}
 .checkout{width:100%;padding:15px;background:#382719;color:white;border:0;margin-top:18px}
-
+function showProducts(list){
+document.getElementById("products").innerHTML=list.map(p=>`
+<div class="product">
+${p.images ? `
+<div class="product-gallery">
+${p.images.map(src=>`
+<img src="${src}" alt="${p.name}" loading="lazy">
+`).join("")}
+</div>
+` : `<div class="photo">20’s PRODUCT PHOTO</div>`}
+<h3>${p.name}</h3>
+<p>
+${p.originalPrice ? `<del>৳ ${p.originalPrice}</del>` : ""}
+<strong>৳ ${p.price}</strong>
+</p>
+<button onclick="addToCart(${p.id})">ADD TO BAG</button>
+</div>
+`).join("");
+}
 
 
