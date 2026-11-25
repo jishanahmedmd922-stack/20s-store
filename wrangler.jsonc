@@ -8,6 +8,13 @@
     "directory": "./",
     "binding": "ASSETS"
   },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "20s-store-db",
+      "database_id": "f710c1b8-e36f-47a4-9f07-87f193d0c32e"
+    }
+  ],
   "observability": {
     "enabled": true
   }
