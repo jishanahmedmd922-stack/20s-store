@@ -1,68 +1,123 @@
 
+function json(data, status = 200, extraHeaders = {}) {
+  return Response.json(data, {
+    status,
+    headers: {
+      "Content-Type": "application/json",
+      ...extraHeaders
+    }
+  });
+}
+
+function base64url(bytes) {
+  return btoa(String.fromCharCode(...new Uint8Array(bytes)))
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
+async function sign(value, secret) {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+
+  return base64url(
+    await crypto.subtle.sign(
+      "HMAC",
+      key,
+      new TextEncoder().encode(value)
+    )
+  );
+}
+
+async function isAdmin(request, env) {
+  if (!env.ADMIN_PASSWORD) return false;
+
+  const cookie = request.headers.get("Cookie") || "";
+  const match = cookie.match(/20s_admin=([^;]+)/);
+
+  if (!match) return false;
+
+  const parts = match[1].split(".");
+  if (parts.length !== 2) return false;
+
+  const [payload, signature] = parts;
+  const expected = await sign(payload, env.ADMIN_PASSWORD);
+
+  if (signature !== expected) return false;
+
+  try {
+    const expiry = Number(
+      atob(payload.replace(/-/g, "+").replace(/_/g, "/"))
+    );
+
+    return expiry > Date.now();
+  } catch {
+    return false;
+  }
+}
+
+async function ensureProductsTable(env) {
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS products (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      price REAL NOT NULL DEFAULT 0,
+      image TEXT DEFAULT '',
+      category TEXT DEFAULT 'Shirts',
+      collection TEXT DEFAULT 'THE ESSENTIALS',
+      description TEXT DEFAULT '',
+      sizes TEXT DEFAULT 'S,M,L,XL',
+      stock INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `).run();
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    const path = url.pathname;
+    const method = request.method;
 
-    const headers = {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type"
-    };
-
-    if (request.method === "OPTIONS") {
-      return new Response(null, { headers });
+    if (method === "OPTIONS") {
+      return new Response(null, {
+        headers: {
+          "Access-Control-Allow-Origin": url.origin,
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type"
+        }
+      });
     }
 
-    if (url.pathname === "/api/health") {
-      return Response.json({
+    if (path === "/api/health") {
+      return json({
         success: true,
         message: "20's Store API is running",
         status: "online"
-      }, { headers });
+      });
     }
 
-    if (url.pathname === "/api/orders" && request.method === "POST") {
+    if (path === "/api/products" && method === "GET") {
       try {
-        const data = await request.json();
+        await ensureProductsTable(env);
 
-        const required = [
-          "id",
-          "customer_name",
-          "phone",
-          "address"
-        ];
+        const result = await env.DB.prepare(
+          "SELECT * FROM products ORDER BY created_at DESC"
+        ).all();
 
-        for (const field of required) {
-          if (!data[field]) {
-            return Response.json({
-              success: false,
-              message: `Missing field: ${field}`
-            }, { status: 400, headers });
-          }
-        }
-
-        await env.DB.prepare(`
-          INSERT INTO orders (
-            id, customer_name, phone, address,
-            total_amount, delivery_charge, weight_kg,
-            payment_method, sender_number, transaction_id
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `).bind(
-          String(data.id),
-          String(data.customer_name),
-          String(data.phone),
-          String(data.address),
-          Number(data.total_amount || 0),
-          Number(data.delivery_charge || 0),
-          Number(data.weight_kg || 1),
-          data.payment_method || null,
-          data.sender_number || null,
-          data.transaction_id || null
-        ).run();
-
-        return Response.json({
+        return json({
           success: true,
-          message: "Order submitted successfully",
-          order_id: data.id,
-          status: "Pending
+          products: result.results || []
+        });
+      } catch {
+        return json({
+          success: false,
+          message: "Could not load products"
+        }, 500);
+      }
+    }
