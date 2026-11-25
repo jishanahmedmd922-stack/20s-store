@@ -65,26 +65,4 @@ export default {
           success: true,
           message: "Order submitted successfully",
           order_id: data.id,
-          status: "Pending Payment"
-        }, { status: 201, headers });
-
-      } catch (error) {
-        return Response.json({
-          success: false,
-          message: "Could not submit order"
-        }, { status: 500, headers });
-      }
-    }
-
-    if (url.pathname.startsWith("/api/")) {
-      return Response.json({
-        success: false,
-        message: "API route not found"
-      }, { status: 404, headers });
-    }
-
-    return env.ASSETS.fetch(request);
-  }
-};
-
-
+          status: "Pending
