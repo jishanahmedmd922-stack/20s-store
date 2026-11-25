@@ -248,3 +248,127 @@ export default {
             id
           }, 201);
         }
+
+        // Edit or delete product
+        if (path.startsWith("/api/admin/products/")) {
+          const id = decodeURIComponent(
+            path.substring("/api/admin/products/".length)
+          );
+
+          if (!id) {
+            return json({
+              success: false,
+              message: "Product ID required"
+            }, 400);
+          }
+
+          if (method === "PUT") {
+            const data = await request.json();
+
+            await env.DB.prepare(`
+              UPDATE products SET
+                name = ?, price = ?, image = ?, category = ?,
+                collection = ?, description = ?, sizes = ?, stock = ?
+              WHERE id = ?
+            `).bind(
+              String(data.name || ""),
+              Number(data.price || 0),
+              String(data.image || ""),
+              String(data.category || "Shirts"),
+              String(data.collection || "THE ESSENTIALS"),
+              String(data.description || ""),
+              String(data.sizes || "S,M,L,XL"),
+              Number(data.stock || 0),
+              id
+            ).run();
+
+            return json({ success: true, message: "Product updated" });
+          }
+
+          if (method === "DELETE") {
+            await env.DB.prepare(
+              "DELETE FROM products WHERE id = ?"
+            ).bind(id).run();
+
+            return json({ success: true, message: "Product deleted" });
+          }
+        }
+
+        return json({
+          success: false,
+          message: "Admin route not found"
+        }, 404);
+
+      } catch {
+        return json({
+          success: false,
+          message: "Product operation failed"
+        }, 500);
+      }
+    }
+
+    // Existing order system
+    if (path === "/api/orders" && method === "POST") {
+      try {
+        const data = await request.json();
+
+        const required = [
+          "id",
+          "customer_name",
+          "phone",
+          "address"
+        ];
+
+        for (const field of required) {
+          if (!data[field]) {
+            return json({
+              success: false,
+              message: `Missing field: ${field}`
+            }, 400);
+          }
+        }
+
+        await env.DB.prepare(`
+          INSERT INTO orders (
+            id, customer_name, phone, address,
+            total_amount, delivery_charge, weight_kg,
+            payment_method, sender_number, transaction_id
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).bind(
+          String(data.id),
+          String(data.customer_name),
+          String(data.phone),
+          String(data.address),
+          Number(data.total_amount || 0),
+          Number(data.delivery_charge || 0),
+          Number(data.weight_kg || 1),
+          data.payment_method || null,
+          data.sender_number || null,
+          data.transaction_id || null
+        ).run();
+
+        return json({
+          success: true,
+          message: "Order submitted successfully",
+          order_id: data.id,
+          status: "Pending Payment"
+        }, 201);
+
+      } catch {
+        return json({
+          success: false,
+          message: "Could not submit order"
+        }, 500);
+      }
+    }
+
+    if (path.startsWith("/api/")) {
+      return json({
+        success: false,
+        message: "API route not found"
+      }, 404);
+    }
+
+    return env.ASSETS.fetch(request);
+  }
+};
